@@ -5,6 +5,8 @@ import java.util.List;
 public class Transaction {
     private Wallet sender;
     private Wallet receiver;
+    private List<UTxO> senderUTxOs; // input
+    private List<UTxO> receiverUTxOs; // output
     private double amount;
 
     public Transaction(Wallet sender, Wallet receiver, double amount) {
