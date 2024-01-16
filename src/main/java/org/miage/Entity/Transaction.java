@@ -3,6 +3,7 @@ package org.miage.Entity;
 import java.util.List;
 
 public class Transaction {
+    private String hash;
     private Wallet sender;
     private Wallet receiver;
     private List<UTxO> senderUTxOs; // input
@@ -37,5 +38,21 @@ public class Transaction {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public List<UTxO> getSenderUTxOs() {
+        return senderUTxOs;
+    }
+
+    public void setSenderUTxOs(List<UTxO> senderUTxOs) {
+        this.senderUTxOs = senderUTxOs;
+    }
+
+    public List<UTxO> getReceiverUTxOs() {
+        return receiverUTxOs;
+    }
+
+    public void setReceiverUTxOs(List<UTxO> receiverUTxOs) {
+        this.receiverUTxOs = receiverUTxOs;
     }
 }

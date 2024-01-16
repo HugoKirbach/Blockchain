@@ -3,7 +3,6 @@ package org.miage.Entity;
 import java.util.List;
 
 public class Wallet {
-
     public String publicKey;
     private String privateKey;
     private double balance;
