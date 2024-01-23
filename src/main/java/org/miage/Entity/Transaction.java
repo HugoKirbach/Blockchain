@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Transaction {
     private String hash;
+    private String previousHash;
     private Wallet sender;
     private Wallet receiver;
     private List<UTxO> senderUTxOs; // input
