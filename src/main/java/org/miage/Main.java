@@ -62,11 +62,21 @@ public class Main {
                 try {
                     Thread.sleep(5000);
                     List<Wallet> randomWallets = twoRandomWallets(blockchain.getListWallet());
-                    System.out.println("ancien solde sender : "+randomWallets.get(0).getTotalAmout());
-                    System.out.println("ancien solde receiver : "+randomWallets.get(1).getTotalAmout());
-                    transactionDao.createTransaction(randomWallets.get(0), randomWallets.get(1), 10);
+
+//                    System.out.println("anciens UTxOs receiver : "+randomWallets.get(1).getUtxos());
+//                    System.out.println("ancien solde sender : "+randomWallets.get(0).getTotalAmout());
+//                    System.out.println("ancien solde receiver : "+randomWallets.get(1).getTotalAmout());
+                    //create a random amount
+                    double randomAmount = Math.random() * 25;
+                    //System.out.println("montant de la transaction : "+randomAmount);
+                    transactionDao.createTransaction(randomWallets.get(0), randomWallets.get(1), randomAmount);
                     System.out.println("nouveau solde sender : "+randomWallets.get(0).getTotalAmout());
                     System.out.println("nouveau solde receiver : "+randomWallets.get(1).getTotalAmout());
+                    System.out.println("-----");
+//                    System.out.println("UTxOs receiver : "+randomWallets.get(1).getUtxos());
+                    System.out.println("-----");
+                    System.out.println("Hash block : "+ blockchain.getBlockchain().getLast().getHash());
+                    //System.out.println("Objet string: "+String.valueOf(blockchain.getBlockchain().getLast()));
                     //TODO : replace 10 par un random
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -78,8 +88,9 @@ public class Main {
         Thread blockThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(16000);
                     blocDao.createBloc();
+                    System.out.println("----- NOUVEAU BLOC -----");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

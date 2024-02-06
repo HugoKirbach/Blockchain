@@ -1,17 +1,19 @@
 package org.miage.Entity;
 
+import java.util.UUID;
+
 public class UTxO {
-    public String hashTransaction;
+    public UUID hashTransaction;
     public double value;
     public String address;
 
-    public UTxO(String hashTransaction, double value, String address) {
+    public UTxO(UUID hashTransaction, double value, String address) {
         this.hashTransaction = hashTransaction;
         this.value = value;
         this.address = address;
     }
 
-    public String getHash() {
+    public UUID getHash() {
         return hashTransaction;
     }
 
@@ -24,7 +26,7 @@ public class UTxO {
         return address;
     }
 
-    public void setHash(String hashTransaction) {
+    public void setHash(UUID hashTransaction) {
         this.hashTransaction = hashTransaction;
     }
 

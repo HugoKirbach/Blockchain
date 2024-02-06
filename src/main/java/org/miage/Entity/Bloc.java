@@ -15,29 +15,25 @@ public class Bloc {
     private LinkedList<Transaction> transactions = new LinkedList<Transaction>();
 
     public Bloc(String previousHash, LinkedList<Transaction> transactions) {
-        this.hash = calculateHash();
         this.previousHash = previousHash;
         this.transactions = transactions;
         this.timeStamp = System.currentTimeMillis();
-
+        calculateHash();
         //TODO : calculer le Hash de ce bloc a chaque modif
     }
 
     //il faut que hash du bloc soit < a la difficultée
 
-    public String calculateHash(){
-        String randomString = RandomStringUtils.randomAlphanumeric(20);
-        String sha256hex = DigestUtils.sha256Hex(randomString);
-
-        return sha256hex;
+    public void calculateHash(){
+        this.hash = DigestUtils.sha256Hex(String.valueOf(this));
     }
 
     public String getHash() {
         return hash;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
+    public void setHash() { //comme calculateHash
+        this.hash = DigestUtils.sha256Hex(String.valueOf(this));
     }
 
     public String getPreviousHash() {
@@ -54,6 +50,7 @@ public class Bloc {
 
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
+        calculateHash();
     }
 
     public int getNonce() {
@@ -62,6 +59,7 @@ public class Bloc {
 
     public void setNonce(int nonce) {
         this.nonce = nonce;
+        calculateHash();
     }
 
     public List<Transaction> getTransactions() {
@@ -70,6 +68,12 @@ public class Bloc {
 
     public void setTransactions(LinkedList<Transaction> transactions) {
         this.transactions = transactions;
+        calculateHash();
+    }
+
+    public void addTransaction(Transaction transaction){
+        this.transactions.add(transaction);
+        calculateHash();
     }
 
     @Override

@@ -5,22 +5,25 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Wallet {
-    protected String publicKey;
-    protected String privateKey;
+    public String publicKey;
+    private String privateKey;
     protected List<UTxO> utxos = new ArrayList<>();
 
     public Wallet(double balance) {
         this.privateKey = RandomStringUtils.randomAlphanumeric(20);
         this.publicKey = generatePublicKey(this.privateKey);
-        utxos.add(new UTxO("INIT", balance, this.publicKey));
+        utxos.add(new UTxO(UUID.randomUUID(), balance, this.publicKey));
         Blockchain.getInstance().getListWallet().add(this);
     }
 
     public String generatePublicKey(String privateKey){
         return DigestUtils.sha256Hex(privateKey);
     }
+
+
 
     public double getTotalAmout(){
         double cumul = 0;
@@ -48,6 +51,22 @@ public class Wallet {
 
     public void setUtxos(List<UTxO> utxos) {
         this.utxos = utxos;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
     }
 
     @Override
