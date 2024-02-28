@@ -9,6 +9,7 @@ import java.util.List;
 public class Blockchain {
 
     private static Blockchain INSTANCE;
+    private int lastBlocIdMined = -1;
 
     List<Wallet> listWallet = new ArrayList<>();
     LinkedList<Bloc> blockchain;
@@ -73,8 +74,16 @@ public class Blockchain {
     public String toString() {
         String listBloc = "";
         for(Bloc bloc : blockchain){
-            listBloc += bloc.getHash().substring(0,12) + " "; //sysout pour lisibilité
+            listBloc += "->-["+bloc.getHash().substring(0,12) + "]"; //sysout pour lisibilité
         }
         return listBloc;
+    }
+
+    public int getLastBlocIdMined() {
+        return lastBlocIdMined;
+    }
+
+    public void setLastBlocIdMinedPlus1() {
+        this.lastBlocIdMined++;
     }
 }

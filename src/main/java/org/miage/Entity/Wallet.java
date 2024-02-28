@@ -40,7 +40,7 @@ public class Wallet {
         while (!(cumul >= amount)){
             aRetourner.add(this.utxos.getFirst());
             cumul += this.utxos.getFirst().getValue();
-            System.out.println("cumul utxos: "+cumul+" besoin amount: "+amount);
+            //System.out.println("cumul utxos: "+cumul+" besoin amount: "+amount);
             this.utxos.removeFirst();
         }
         return aRetourner;

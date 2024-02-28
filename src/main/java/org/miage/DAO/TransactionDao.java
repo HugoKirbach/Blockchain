@@ -34,7 +34,7 @@ public class TransactionDao {
             if (new Signature().verifySignature(String.valueOf(newTransaction), sender.getPrivateKey(), signature.getSignature())) {
                 Bloc lastBloc = blockchain.getBlockchain().getLast();
                 lastBloc.addTransaction(newTransaction);
-                System.out.println("Transaction validée inscrite dans le bloc "+lastBloc.getIdBlock()+"\n");
+                System.out.println("Transaction validée inscrite dans le bloc "+lastBloc.getIdBlock()+ ", nb transactions dans bloc: "+lastBloc.getTransactions().size());
             } else {
                 System.out.println("Transaction REFUSEE (signature invalide)");
             }

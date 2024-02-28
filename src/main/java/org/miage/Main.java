@@ -1,5 +1,6 @@
 package org.miage;
 
+import org.miage.Constante.Constante;
 import org.miage.DAO.BlocDao;
 import org.miage.DAO.TransactionDao;
 import org.miage.Entity.Bloc;
@@ -11,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,65 +24,36 @@ public class Main {
 
         List<Wallet> listWallets = new ArrayList<>();
 
+        int dureeNvltransac = Constante.DUREE_ENTRE_TRANSAC * 1000;
+        int dureeNvBloc = Constante.DUREE_ENTRE_BLOC * 1000;
 
-        listWallets = initWallets(4);
+        listWallets = initWallets(Constante.NB_WALLET_INIT);
         blockchain.setListWallet(listWallets);
 
-////
-////        TransactionDao transactionDao = new TransactionDao();
-////        transactionDao.createTransaction(randomWallets.get(0), randomWallets.get(1), 10);
-////
-////        //TODO: create transactions
-////        /*
-////         * wallet1 --> wallet2
-////         *
-////         * */
-////
-////
-//        Blockchain blockchain = Blockchain.getInstance();
-//
-//        BlocDao blocDao = new BlocDao();
-//        TransactionDao transactionDao = new TransactionDao();
-//        Thread thread = new Thread();
-//        while (true){
-//            try {
-//                thread.sleep(1000);
-//                transactionDao.createTransaction(twoRandomWallets(blockchain.getListWallet()).get(0), twoRandomWallets(blockchain.getListWallet()).get(1), 10);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            try {
-//                thread.sleep(5000);
-//                blocDao.createBloc();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            System.out.println(blockchain.toString());
-//        }
 
-
+        /*
+         * Partie Création de transactions
+         * */
 
         Thread transactionThread = new Thread(() -> {
             while (true) {
                 try {
                     List<Wallet> randomWallets = twoRandomWallets(blockchain.getListWallet());
-
 //                    System.out.println("anciens UTxOs receiver : "+randomWallets.get(1).getUtxos());
 //                    System.out.println("ancien solde sender : "+randomWallets.get(0).getTotalAmout());
 //                    System.out.println("ancien solde receiver : "+randomWallets.get(1).getTotalAmout());
                     //create a random amount
-                    double randomAmount = Math.random() * 25;
+                    double randomAmount = Math.random() * Constante.MAX_MONTANT_TRANSAC;
                     //System.out.println("montant de la transaction : "+randomAmount);
                     transactionDao.createTransaction(randomWallets.get(0), randomWallets.get(1), randomAmount);
 //                    System.out.println("nouveau solde sender : "+randomWallets.get(0).getTotalAmout());
 //                    System.out.println("nouveau solde receiver : "+randomWallets.get(1).getTotalAmout());
 //                    System.out.println("-----");
 //                    System.out.println("UTxOs receiver : "+randomWallets.get(1).getUtxos());
-                    System.out.println(blockchain.getBlockchain().getLast().toString());
+//                    System.out.println(blockchain.getBlockchain().getLast().toString());
                     System.out.println("-----");
-                    Thread.sleep(2000);
+                    Thread.sleep(dureeNvltransac);
                     //System.out.println("Objet string: "+String.valueOf(blockchain.getBlockchain().getLast()));
-                    //TODO : replace 10 par un random
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -86,21 +61,36 @@ public class Main {
             }
         });
 
+        /*
+         * Partie Création de nouveaux blocs
+         * */
+
         Thread blockThread = new Thread(() -> {
             while (true) {
                 try {
                     blocDao.createBloc();
                     System.out.println("\n----- NOUVEAU BLOC CREE -----");
                     System.out.println("nb blocs : "+blockchain.getBlockchain().size());
-                    lancerMinage(blockchain);
-                    //TODO: revoir placement appel fonction, nouveau thread ? pour toutes les 1min lancer cette fonction sans attendre fin exec précédente execution
 
-                    Thread.sleep(5000);
+                    Thread.sleep(dureeNvBloc);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         });
+
+        /*
+         * Partie minage
+         * */
+        int initialDelay = 1000; //on attend 1 sec avant de lancer le premier minage pour que les blocs soient créés etc...
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Lancement minage");
+                lancerMinage(blockchain);
+            }
+        }, initialDelay , dureeNvBloc, TimeUnit.MILLISECONDS); //thread executé toutes les "dureeNvBloc" millisecondes
 
         blockThread.start();
         transactionThread.start();
@@ -132,19 +122,22 @@ public class Main {
     }
 
     public static void lancerMinage(Blockchain blockchain){
-        int blocChainSize = blockchain.getBlockchain().size();
-        Bloc dernierBlocFinis = blockchain.getBlockchain().get(blocChainSize-2);
-        System.out.println("DEBUT MINAGE BLOCK "+dernierBlocFinis.getIdBlock()+" hash: "+dernierBlocFinis.getHash().substring(0,8));
-        Instant start = Instant.now();
-        dernierBlocFinis.mineBloc(blockchain.getDifficulty());
-        Instant end = Instant.now();
-        System.out.println("\nFIN MINAGE BLOCK "+dernierBlocFinis.getIdBlock()+" new hash: "+dernierBlocFinis.getHash().substring(0,blockchain.getDifficulty()+10)+"...\n");
-        System.out.println("Temps de minage: "+(end.toEpochMilli()-start.toEpochMilli())+" ms ("+(end.toEpochMilli()-start.toEpochMilli())/1000+"sec) avec difficulté "+blockchain.getDifficulty());
-        blockchain.getBlockchain()
-                .get(dernierBlocFinis.getIdBlock()+1)//on récupère le bloc suivant celui miné
-                .setPreviousHash(dernierBlocFinis.getHash()); //update le previous hash du bloc récup
 
-        System.out.println("Blockchain "+blockchain.getBlockchain().toString());
+        Bloc blocAMiner = blockchain.getBlockchain().get(blockchain.getLastBlocIdMined()+1);
+
+        System.out.println("\nDEBUT MINAGE BLOCK "+blocAMiner.getIdBlock()+" hash: "+blocAMiner.getHash().substring(0,8)+'\n');
+        Instant start = Instant.now();
+        blocAMiner.mineBloc(blockchain.getDifficulty());
+        Instant end = Instant.now();
+        System.out.println("\nFIN MINAGE BLOCK "+blocAMiner.getIdBlock()+" new hash: "+blocAMiner.getHash().substring(0,blockchain.getDifficulty()+10)+"...\n");
+        System.out.println("Temps de minage: "+(end.toEpochMilli()-start.toEpochMilli())+" ms ("+(end.toEpochMilli()-start.toEpochMilli())/1000+"sec) avec difficulté "+blockchain.getDifficulty());
+        blockchain.setLastBlocIdMinedPlus1();
+
+        blockchain.getBlockchain()
+                .get(blocAMiner.getIdBlock()+1)//on récupère le bloc suivant celui miné
+                .setPreviousHash(blocAMiner.getHash()); //update le previous hash du bloc récup
+
+        System.out.println("Blockchain: "+blockchain);
         System.out.println("\n-----\n");
     }
 }
