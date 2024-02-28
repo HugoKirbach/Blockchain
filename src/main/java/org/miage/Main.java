@@ -6,6 +6,7 @@ import org.miage.Entity.Bloc;
 import org.miage.Entity.Blockchain;
 import org.miage.Entity.Wallet;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -60,7 +61,6 @@ public class Main {
         Thread transactionThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(5000);
                     List<Wallet> randomWallets = twoRandomWallets(blockchain.getListWallet());
 
 //                    System.out.println("anciens UTxOs receiver : "+randomWallets.get(1).getUtxos());
@@ -70,12 +70,13 @@ public class Main {
                     double randomAmount = Math.random() * 25;
                     //System.out.println("montant de la transaction : "+randomAmount);
                     transactionDao.createTransaction(randomWallets.get(0), randomWallets.get(1), randomAmount);
-                    System.out.println("nouveau solde sender : "+randomWallets.get(0).getTotalAmout());
-                    System.out.println("nouveau solde receiver : "+randomWallets.get(1).getTotalAmout());
-                    System.out.println("-----");
+//                    System.out.println("nouveau solde sender : "+randomWallets.get(0).getTotalAmout());
+//                    System.out.println("nouveau solde receiver : "+randomWallets.get(1).getTotalAmout());
+//                    System.out.println("-----");
 //                    System.out.println("UTxOs receiver : "+randomWallets.get(1).getUtxos());
+                    System.out.println(blockchain.getBlockchain().getLast().toString());
                     System.out.println("-----");
-                    System.out.println("Hash block : "+ blockchain.getBlockchain().getLast().getHash());
+                    Thread.sleep(2000);
                     //System.out.println("Objet string: "+String.valueOf(blockchain.getBlockchain().getLast()));
                     //TODO : replace 10 par un random
                 } catch (InterruptedException e) {
@@ -88,9 +89,13 @@ public class Main {
         Thread blockThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(16000);
                     blocDao.createBloc();
-                    System.out.println("----- NOUVEAU BLOC -----");
+                    System.out.println("\n----- NOUVEAU BLOC CREE -----");
+                    System.out.println("nb blocs : "+blockchain.getBlockchain().size());
+                    lancerMinage(blockchain);
+                    //TODO: revoir placement appel fonction, nouveau thread ? pour toutes les 1min lancer cette fonction sans attendre fin exec précédente execution
+
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -124,5 +129,22 @@ public class Main {
             random2 = (int) (Math.random() * listWallets.size());
         }
         return Arrays.asList(listWallets.get(random1), listWallets.get(random2));
+    }
+
+    public static void lancerMinage(Blockchain blockchain){
+        int blocChainSize = blockchain.getBlockchain().size();
+        Bloc dernierBlocFinis = blockchain.getBlockchain().get(blocChainSize-2);
+        System.out.println("DEBUT MINAGE BLOCK "+dernierBlocFinis.getIdBlock()+" hash: "+dernierBlocFinis.getHash().substring(0,8));
+        Instant start = Instant.now();
+        dernierBlocFinis.mineBloc(blockchain.getDifficulty());
+        Instant end = Instant.now();
+        System.out.println("\nFIN MINAGE BLOCK "+dernierBlocFinis.getIdBlock()+" new hash: "+dernierBlocFinis.getHash().substring(0,blockchain.getDifficulty()+10)+"...\n");
+        System.out.println("Temps de minage: "+(end.toEpochMilli()-start.toEpochMilli())+" ms ("+(end.toEpochMilli()-start.toEpochMilli())/1000+"sec) avec difficulté "+blockchain.getDifficulty());
+        blockchain.getBlockchain()
+                .get(dernierBlocFinis.getIdBlock()+1)//on récupère le bloc suivant celui miné
+                .setPreviousHash(dernierBlocFinis.getHash()); //update le previous hash du bloc récup
+
+        System.out.println("Blockchain "+blockchain.getBlockchain().toString());
+        System.out.println("\n-----\n");
     }
 }

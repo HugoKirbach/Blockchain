@@ -36,13 +36,14 @@ public class Wallet {
     public List<UTxO> getUTxOsUntilAmout(double amount){
         double cumul = 0;
         List<UTxO> aRetourner = new ArrayList<>();
-        for(UTxO unUtxo : this.utxos){
-            cumul += unUtxo.getValue();
-            aRetourner.add(unUtxo);
-            this.utxos.remove(unUtxo);
-            if (cumul >= amount) return aRetourner;
+
+        while (!(cumul >= amount)){
+            aRetourner.add(this.utxos.getFirst());
+            cumul += this.utxos.getFirst().getValue();
+            System.out.println("cumul utxos: "+cumul+" besoin amount: "+amount);
+            this.utxos.removeFirst();
         }
-        return null;
+        return aRetourner;
     }
 
     public List<UTxO> getUtxos() {
@@ -71,8 +72,6 @@ public class Wallet {
 
     @Override
     public String toString() {
-        return "\nWallet{" +
-                "utxos=" + utxos +
-                '}';
+        return "utxos=" + utxos;
     }
 }

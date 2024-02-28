@@ -12,7 +12,8 @@ public class BlocDao {
 //        Thread thread = new Thread();
 //        try {
 //            thread.sleep(5000);
-            Bloc bloc = new Bloc(blockchain.getBlockchain().getLast().getHash(), new LinkedList<>());
+            Bloc bloc = new Bloc(blockchain.getBlockchain().getLast().getHash());
+            bloc.setIdBlock(blockchain.getBlockchain().size());
             blockchain.addBlock(bloc);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();

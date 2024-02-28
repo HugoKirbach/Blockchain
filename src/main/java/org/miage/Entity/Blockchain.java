@@ -28,7 +28,9 @@ public class Blockchain {
     }
 
     private Bloc firstBloc() {
-        return new Bloc("1", new LinkedList<>());
+        Bloc bloc = new Bloc("000000000000000000000000000000000000000", new LinkedList<>());
+        bloc.setIdBlock(0);
+        return bloc;
     }
 
     public void addBlock(Bloc newBlock) {
@@ -69,8 +71,10 @@ public class Blockchain {
 
     @Override
     public String toString() {
-        return "Blockchain{" +
-                "blockchain=" + blockchain +
-                '}';
+        String listBloc = "";
+        for(Bloc bloc : blockchain){
+            listBloc += bloc.getHash().substring(0,12) + " "; //sysout pour lisibilité
+        }
+        return listBloc;
     }
 }

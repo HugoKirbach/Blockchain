@@ -93,9 +93,6 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return "\nTransaction{" +
-                "sender=" + sender +
-                ", receiver=" + receiver +
-                '}';
+        return "\nTransactionId " + hash;
     }
 }

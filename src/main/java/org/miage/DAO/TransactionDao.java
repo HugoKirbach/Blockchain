@@ -18,6 +18,7 @@ public class TransactionDao {
 //            newTransaction.signature = new Signature();
             Signature signature = new Signature();
             signature.sign(String.valueOf(newTransaction), sender.getPrivateKey());
+            //message+privatekey hashé
 
             //TODO: verify transaction --> Utiliser objet Signature, Objet Transaction
             // verifySignature (Transaction hashé, sender.privateKey, Signature.signature)
@@ -26,12 +27,16 @@ public class TransactionDao {
 
 
             String hashPrivateKey = DigestUtils.sha256Hex(sender.getPrivateKey());
+            System.out.println("Transaction de "+amount+" de "+sender.getPublicKey().substring(0,8)
+                    +" vers "+receiver.getPublicKey().substring(0,8));
+                    //+" signée par "+hashPrivateKey.substring(0,8)+" : "+signature.getSignature().substring(0,8));
+
             if (new Signature().verifySignature(String.valueOf(newTransaction), sender.getPrivateKey(), signature.getSignature())) {
                 Bloc lastBloc = blockchain.getBlockchain().getLast();
                 lastBloc.addTransaction(newTransaction);
-                System.out.println("Transaction validée");
+                System.out.println("Transaction validée inscrite dans le bloc "+lastBloc.getIdBlock()+"\n");
             } else {
-                System.out.println("Transaction non validée");
+                System.out.println("Transaction REFUSEE (signature invalide)");
             }
 
 

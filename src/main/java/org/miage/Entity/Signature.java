@@ -19,7 +19,7 @@ public class Signature {
     }
 
     public boolean verifySignature(String message, String privateKey, String signature){
-        if (DigestUtils.sha256Hex(message+privateKey) == signature){
+        if (DigestUtils.sha256Hex(message+privateKey).equals(signature)){
             return true;
         }
         return false;
@@ -27,6 +27,6 @@ public class Signature {
 
     @Override
     public String toString() {
-        return signature.toString();
+        return signature.substring(0,8);
     }
 }
