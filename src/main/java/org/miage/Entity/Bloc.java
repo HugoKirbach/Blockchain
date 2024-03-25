@@ -42,7 +42,6 @@ public class Bloc {
         }
         System.out.println("Bloc miné: " + hash + " nonce: " + nonce);
         return hash; //retourne le nouveau hash pour modif dans le last bloc
-        //TODO : vérifier si correct
     }
 
     public void calculateHash(){
